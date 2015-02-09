@@ -1,0 +1,30 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="fi.generic.location.myservice">
+
+    <permission-group
+        android:name="fi.generic.location.myservice.permission_group.LOC"
+        android:description="@string/loc_desc"
+        android:label="@string/loc_label" />
+
+    <permission
+        android:name="fi.generic.location.myservice.permission.REVEAL_LOC"
+        android:description="@string/permdesc_loc"
+        android:label="@string/permlab_loc"
+        android:permissionGroup="fi.generic.location.myservice.permission_group.LOC"
+        android:protectionLevel="normal" />
+
+    <uses-permission android:name="ANDROID.PERMISSION.ACCESS_FINE_LOCATION"/>
+
+    <application android:allowBackup="true" android:label="@string/app_name"
+        android:icon="@drawable/ic_launcher" android:theme="@style/AppTheme">
+        <service
+            android:name=".LocService"
+            android:enabled="true"
+            android:exported="true"
+            android:process=":LocService"></service>
+            <!--android:permission="fi.generic.location.myservice.permission.REVEAL_LOC"> -->
+
+
+    </application>
+
+</manifest>

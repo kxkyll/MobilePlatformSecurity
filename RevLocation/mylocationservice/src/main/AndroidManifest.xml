@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.mobisec.app2.mylocationservice" >
+
+    <permission-group
+        android:name="com.mobisec.app2.mylocationservice.permission_group.LOCDATA"
+        android:description="@string/locdata_desc"
+        android:label="@string/locdata_label" />
+
+    <permission
+        android:name="com.mobisec.app2.mylocationservice.permission.REVEAL_LOCATION"
+        android:description="@string/permdesc_textLocation"
+        android:label="@string/permlab_textLocation"
+        android:permissionGroup="com.mobisec.app2.mylocationservice.permission_group.LOCDATA"
+        android:protectionLevel="normal" />
+
+    <uses-permission android:name="ANDROID.PERMISSION.ACCESS_FINE_LOCATION"/>
+
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme" >
+        <service
+            android:name=".LocationService"
+            android:enabled="true"
+            android:exported="true"
+            <!-- android:permission="com.mobisec.app2.mylocationservice.permission.REVEAL_LOCATION"> -->
+        </service>
+    </application>
+
+</manifest>

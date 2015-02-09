@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">My LocationService</string>
+    <string name="locdata_desc">Group contains permissions related to revealing location of user</string>
+    <string name="locdata_label">Location Permissions</string>
+    <string name="permdesc_textLocation">Allows transforming user location coordinates to places</string>
+    <string name="permlab_textLocation">Converts coordinates to places </string>
+
+</resources>
