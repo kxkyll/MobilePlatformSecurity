@@ -56,6 +56,9 @@ public class MyLocation extends Activity {
      */
     public void unregisterLocation(View view) {
         Intent intent = new Intent(this, MessengerServiceActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        intent.putExtra("keep", false);
         startActivity(intent);
 
     }

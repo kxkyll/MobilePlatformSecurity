@@ -90,7 +90,6 @@ public class MessengerServiceActivity extends Activity {
     protected void onStart(){
         Log.w("MessengerServiceActivity", "onStart about to bind to service");
         super.onStart();
-
         bindService(new Intent(this, MessengerService.class), messengerConnection, Context.BIND_AUTO_CREATE);
     }
 
