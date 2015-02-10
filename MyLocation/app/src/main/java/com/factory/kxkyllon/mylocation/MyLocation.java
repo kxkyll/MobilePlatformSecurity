@@ -1,15 +1,25 @@
 package com.factory.kxkyllon.mylocation;
 
 import android.app.Activity;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
+import android.os.Messenger;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 
 public class MyLocation extends Activity {
+
+    private Messenger messengerService;
+    private boolean messengerServiceBound = false;
+    private ServiceConnection messengerConnection;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,9 +55,35 @@ public class MyLocation extends Activity {
      * @param view
      */
     public void registerLocation(View view) {
-        Log.w("registerLocation", "kicking off the MessengerServiceActivity");
+        /*Log.w("registerLocation", "kicking off the MessengerServiceActivity");
         Intent intent = new Intent(this, MessengerServiceActivity.class);
-        startActivity(intent);
+        startActivity(intent); */
+
+        messengerConnection = new ServiceConnection() {
+
+            /**
+             * Received when a connection is established with a service
+             */
+            @Override
+            public void onServiceConnected(ComponentName name, IBinder service) {
+
+                messengerService = new Messenger(service);
+                messengerServiceBound = true;
+            }
+
+            /**
+             * Connection to service has been disconnected, reference removed
+             */
+            @Override
+            public void onServiceDisconnected(ComponentName name) {
+                messengerService = null;
+                messengerServiceBound = false;
+            }
+        };
+
+        bindService(new Intent(this, MessengerService.class), messengerConnection, Context.BIND_AUTO_CREATE);
+
+
     }
 
     /**
@@ -55,11 +91,17 @@ public class MyLocation extends Activity {
      * @param view
      */
     public void unregisterLocation(View view) {
-        Intent intent = new Intent(this, MessengerServiceActivity.class);
+        /*Intent intent = new Intent(this, MessengerServiceActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         intent.putExtra("keep", false);
-        startActivity(intent);
+        startActivity(intent); */
+
+        if (messengerServiceBound) {
+            unbindService(messengerConnection);
+            messengerServiceBound = false;
+        }
+        Toast.makeText(getApplicationContext(),"Service unbound", Toast.LENGTH_SHORT).show();
 
     }
 }
