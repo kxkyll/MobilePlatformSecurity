@@ -77,6 +77,7 @@ public class MessengerService extends Service {
         Message locationMessage = Message.obtain(null, MESSAGE_SEND_LOCATION);
         Bundle bundle = new Bundle();
         bundle.putString("loc", "everyone your location is..."+test);
+        locationMessage.setData(bundle);
 
         for (Messenger client: clients) {
             try {
