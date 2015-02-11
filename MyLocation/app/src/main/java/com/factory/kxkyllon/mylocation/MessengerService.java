@@ -2,6 +2,7 @@ package com.factory.kxkyllon.mylocation;
 
 import android.app.Service;
 import android.content.Intent;
+import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -10,14 +11,15 @@ import android.os.Messenger;
 import android.os.RemoteException;
 import android.widget.Toast;
 
+import com.google.android.gms.location.LocationServices;
+
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class MessengerService extends Service {
+//public class MessengerService extends Service{
 
-
-
+public class MessengerService extends MyAbstractLocationService{
     public MessengerService() {
     }
 
@@ -31,6 +33,12 @@ public class MessengerService extends Service {
     //Timer timer = new Timer();
     //TimerTask sendLocation = new SendLocationTask();
     int test = 0;
+    String currentLocation = "";
+
+    @Override
+    public void onLocationChanged(Location location) {
+        currentLocation = location.toString();
+    }
 
     private final class MyHandler extends Handler {
         @Override
@@ -45,7 +53,10 @@ public class MessengerService extends Service {
                 case MESSAGE_REQUEST_LOCATION:
                     //If Client wants to request location more frequently, send location to this client only
                     Toast.makeText(getApplicationContext(), "Location request received!", Toast.LENGTH_SHORT).show();
-                    Message locationToClient = Message.obtain(null, MESSAGE_SEND_LOCATION, "your location is...");
+                    Message locationToClient = Message.obtain(null, MESSAGE_SEND_LOCATION);
+                    Bundle bundle = new Bundle();
+                    bundle.putString("loc", currentLocation);
+                    locationToClient.setData(bundle);
                     try {
                         message.replyTo.send(locationToClient);
                     } catch (RemoteException e) {
@@ -76,7 +87,7 @@ public class MessengerService extends Service {
         test++;
         Message locationMessage = Message.obtain(null, MESSAGE_SEND_LOCATION);
         Bundle bundle = new Bundle();
-        bundle.putString("loc", "everyone your location is..."+test);
+        bundle.putString("loc", currentLocation);
         locationMessage.setData(bundle);
 
         for (Messenger client: clients) {

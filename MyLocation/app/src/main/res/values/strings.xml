@@ -10,5 +10,9 @@
     <string name="button_unregister">Unregister</string>
     <string name="my_location">My current location</string>
     <string name="title_activity_messenger_service">MessengerServiceActivity</string>
+    <string name="loc_desc">Group contains permissions related to revealing location of user</string>
+    <string name="loc_label">Location Permissions</string>
+    <string name="permdesc_loc">Allows transforming user location coordinates to places</string>
+    <string name="permlab_loc">Converts coordinates to places </string>
 
 </resources>
