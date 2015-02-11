@@ -6,13 +6,18 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
 import android.os.Messenger;
+import android.os.RemoteException;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
+
 
 
 public class MyLocation extends Activity {
@@ -20,6 +25,24 @@ public class MyLocation extends Activity {
     private Messenger messengerService;
     private boolean messengerServiceBound = false;
     private ServiceConnection messengerConnection;
+    private Messenger messengerClient = new Messenger (new IncomingHandler());
+
+
+
+    class IncomingHandler extends Handler {
+        @Override
+        public void handleMessage (Message message) {
+            switch (message.what) {
+                case MessengerService.MESSAGE_SEND_LOCATION:
+                    TextView locationField = (TextView) (findViewById(R.id.my_location));
+                    locationField.setText(message.arg1);
+                    break;
+                default:
+                    super.handleMessage(message);
+            }
+        }
+
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,6 +92,16 @@ public class MyLocation extends Activity {
 
                 messengerService = new Messenger(service);
                 messengerServiceBound = true;
+                if (messengerService != null) {
+
+                    try {
+                        Message registerMessage = Message.obtain(null, MessengerService.MESSAGE_REGISTER_CLIENT);
+                        registerMessage.replyTo = messengerClient;
+                        messengerService.send(registerMessage);
+                    } catch (RemoteException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
 
             /**
@@ -90,7 +123,7 @@ public class MyLocation extends Activity {
      * Called when user presses unregister button in main view
      * @param view
      */
-    public void unregisterLocation(View view) {
+    public void unregisterLocation(View view) throws RemoteException {
         /*Intent intent = new Intent(this, MessengerServiceActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
@@ -98,6 +131,14 @@ public class MyLocation extends Activity {
         startActivity(intent); */
 
         if (messengerServiceBound) {
+
+            try {
+                Message message = Message.obtain(null, MessengerService.MESSAGE_UNREGISTER_CLIENT);
+                message.replyTo = messengerClient;
+                messengerService.send(message);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
             unbindService(messengerConnection);
             messengerServiceBound = false;
         }
