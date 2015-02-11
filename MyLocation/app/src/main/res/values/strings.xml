@@ -8,7 +8,7 @@
     <string name="button_register">Register</string>
     <string name="unregister_text">Unregister locations</string>
     <string name="button_unregister">Unregister</string>
-    <string name="my_locations">My current location</string>
+    <string name="my_location">My current location</string>
     <string name="title_activity_messenger_service">MessengerServiceActivity</string>
 
 </resources>

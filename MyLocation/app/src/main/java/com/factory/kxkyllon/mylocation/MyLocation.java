@@ -18,6 +18,8 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.Timer;
+import java.util.TimerTask;
 
 
 public class MyLocation extends Activity {
@@ -26,7 +28,9 @@ public class MyLocation extends Activity {
     private boolean messengerServiceBound = false;
     private ServiceConnection messengerConnection;
     private Messenger messengerClient = new Messenger (new IncomingHandler());
-
+    //Timer timer = new Timer();
+    //TimerTask sendLocation = new SendLocationTask();
+    int laskuri = 0;
 
 
     class IncomingHandler extends Handler {
@@ -34,14 +38,17 @@ public class MyLocation extends Activity {
         public void handleMessage (Message message) {
             switch (message.what) {
                 case MessengerService.MESSAGE_SEND_LOCATION:
-                    TextView locationField = (TextView) (findViewById(R.id.my_location));
-                    locationField.setText(message.arg1);
+                    TextView locationField = (TextView)(findViewById(R.id.my_location));
+                    laskuri++;
+                    locationField.setText("huuhaa "+laskuri);
+                    //locationField.setText(message.getData().getString("loc"));
+                    //locationField.setText(message.getData().getString("loc"));
+
                     break;
                 default:
                     super.handleMessage(message);
             }
         }
-
     }
 
     @Override
@@ -98,6 +105,7 @@ public class MyLocation extends Activity {
                         Message registerMessage = Message.obtain(null, MessengerService.MESSAGE_REGISTER_CLIENT);
                         registerMessage.replyTo = messengerClient;
                         messengerService.send(registerMessage);
+                        //timer.scheduleAtFixedRate(sendLocation, 5000, 1000);
                     } catch (RemoteException e) {
                         e.printStackTrace();
                     }
@@ -118,6 +126,23 @@ public class MyLocation extends Activity {
 
 
     }
+
+    /*class SendLocationTask extends TimerTask {
+
+        public void run() {
+            if (messengerService != null) {
+
+                try {
+                    Message registerMessage = Message.obtain(null, MessengerService.MESSAGE_SEND_LOCATION);
+                    registerMessage.replyTo = messengerClient;
+                    messengerService.send(registerMessage);
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+    */
 
     /**
      * Called when user presses unregister button in main view

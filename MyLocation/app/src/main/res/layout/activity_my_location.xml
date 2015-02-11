@@ -23,9 +23,9 @@
         android:text="@string/button_unregister"
         android:onClick="unregisterLocation" />
 
-    <TextView android:text="@+id/my_location"
+    <TextView android:id="@+id/my_location"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:hint="@string/my_locations" />
+        android:hint="@string/my_location" />
 
 </LinearLayout>
