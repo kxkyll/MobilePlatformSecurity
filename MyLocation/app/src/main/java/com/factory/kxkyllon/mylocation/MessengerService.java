@@ -32,7 +32,7 @@ public class MessengerService extends MyAbstractLocationService{
     Handler timerHandler = new Handler();
     //Timer timer = new Timer();
     //TimerTask sendLocation = new SendLocationTask();
-    int test = 0;
+    int counter = 0;
     String currentLocation = "";
 
     @Override
@@ -51,11 +51,13 @@ public class MessengerService extends MyAbstractLocationService{
                     Toast.makeText(getApplicationContext(), "Client registered!", Toast.LENGTH_SHORT).show();
                     break;
                 case MESSAGE_REQUEST_LOCATION:
+
                     //If Client wants to request location more frequently, send location to this client only
                     Toast.makeText(getApplicationContext(), "Location request received!", Toast.LENGTH_SHORT).show();
                     Message locationToClient = Message.obtain(null, MESSAGE_SEND_LOCATION);
                     Bundle bundle = new Bundle();
                     bundle.putString("loc", currentLocation);
+                    //bundle.putString("loc", "location is "+counter);
                     locationToClient.setData(bundle);
                     try {
                         message.replyTo.send(locationToClient);
@@ -84,10 +86,11 @@ public class MessengerService extends MyAbstractLocationService{
     }
 
     private void sendLocationToClients() {
-        test++;
+        counter++;
         Message locationMessage = Message.obtain(null, MESSAGE_SEND_LOCATION);
         Bundle bundle = new Bundle();
         bundle.putString("loc", currentLocation);
+        //bundle.putString("loc", "location is "+counter);
         locationMessage.setData(bundle);
 
         for (Messenger client: clients) {

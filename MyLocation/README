@@ -1,0 +1,31 @@
+Mobile Systems Security
+Kati Kyllönen
+Programming Assignment2
+
+Shortcomings:
+
+I was not able to get the service work as an external module, 
+so I implemented it to the same package using the 
+process:remote command in manifest to have it run it's own process.
+
+The code currently contains an extra file: MessengerServiceActivity.java as 
+I wanted to start the service with own Intent. This worked ok, but I was not able to stop the service using an intent so I copied the code 
+to the original Activity called MyLocation.
+
+I tested the location sending to client with a simple string and a counter 
+bundle.putString("loc", "location is "+counter)  in
+method sendLocationToClients in class MessengerService and it is updating 
+the location to UI.
+
+Now I'm too tired to figure out how to test the location service using 
+gpx files, but leave it to some later moment.
+
+I learnt a lot and had fun doing this.
+
+
+
+
+
+
+
+
