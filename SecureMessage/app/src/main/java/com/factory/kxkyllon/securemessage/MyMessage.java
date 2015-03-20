@@ -3,14 +3,30 @@ package com.factory.kxkyllon.securemessage;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.security.KeyPairGeneratorSpec;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 
+import java.math.BigInteger;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.util.Calendar;
+import java.util.Date;
+
+import javax.security.auth.x500.X500Principal;
+
 
 public class MyMessage extends Activity {
     public final static String EXTRA_MESSAGE = "com.factory.kxkyllon.securemessage.MESSAGE";
+    private final static String KEY_STORE = "AndroidKeyStore";
+
+
+    private String alias = "key";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +66,33 @@ public class MyMessage extends Activity {
         String message = editText.getText().toString();
         intent.putExtra(EXTRA_MESSAGE, message);
         startActivity(intent);
+    }
+
+    private KeyPair generateKeyPair (){
+        KeyPair keyPair = null;
+        Calendar calendar = Calendar.getInstance();
+        Date keyGenerationDate = calendar.getTime();
+        calendar.add(Calendar.YEAR, 1);
+        Date keyExpirationDate = calendar.getTime();
+
+        try {
+            KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA", KEY_STORE);
+            keyPairGenerator.initialize(new KeyPairGeneratorSpec.Builder(getApplicationContext())
+                    .setAlias(alias)
+                    .setStartDate(keyGenerationDate)
+                    .setEndDate(keyExpirationDate)
+                    .setSerialNumber(BigInteger.valueOf(1))
+                    .setSubject(new X500Principal("CN=test1"))
+                    .build());
+            keyPair = keyPairGenerator.generateKeyPair();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (NoSuchProviderException e) {
+            e.printStackTrace();
+        } catch (InvalidAlgorithmParameterException e) {
+            e.printStackTrace();
+        }
+        return keyPair;
 
     }
 }
