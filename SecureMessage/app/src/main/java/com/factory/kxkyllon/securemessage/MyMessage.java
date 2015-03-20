@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.security.KeyPairGeneratorSpec;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -12,12 +13,16 @@ import android.widget.EditText;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
+import java.security.Signature;
+import java.security.SignatureException;
+import java.security.UnrecoverableEntryException;
 import java.security.cert.CertificateException;
 import java.util.Calendar;
 import java.util.Date;
@@ -29,7 +34,7 @@ import javax.security.auth.x500.X500Principal;
 public class MyMessage extends Activity {
     public final static String EXTRA_MESSAGE = "com.factory.kxkyllon.securemessage.MESSAGE";
     private final static String KEY_STORE = "AndroidKeyStore";
-
+    private static final String TAG = "SecureMessageApp";
 
     private String alias = "key";
 
@@ -69,7 +74,9 @@ public class MyMessage extends Activity {
         Intent intent = new Intent (this, DisplayMessageActivity.class);
         EditText editText = (EditText) findViewById(R.id.edit_message);
         String message = editText.getText().toString();
-        intent.putExtra(EXTRA_MESSAGE, message);
+        byte[] signedMessage = signData(message.getBytes());
+        //intent.putExtra(EXTRA_MESSAGE, message);
+        intent.putExtra(EXTRA_MESSAGE, signedMessage);
         startActivity(intent);
     }
 
@@ -112,6 +119,37 @@ public class MyMessage extends Activity {
         } catch (CertificateException e) {
             e.printStackTrace();
         } catch (KeyStoreException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private byte[] signData(byte[] messageInBytes) {
+        try {
+            KeyStore keystore = KeyStore.getInstance(KEY_STORE);
+            keystore.load(null);
+            KeyStore.Entry entry = keystore.getEntry(alias, null);
+            if (!(entry instanceof KeyStore.PrivateKeyEntry)) {
+                Log.w(TAG, "MyMessage Activity: Not PrivateKeyEntry");
+                return null;
+            }
+            Signature signature = Signature.getInstance("SHA256withRSA");
+            signature.initSign(((KeyStore.PrivateKeyEntry) entry).getPrivateKey());
+            signature.update(messageInBytes);
+            return signature.sign();
+        } catch (KeyStoreException e) {
+            e.printStackTrace();
+        } catch (CertificateException e) {
+            e.printStackTrace();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (UnrecoverableEntryException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InvalidKeyException e) {
+            e.printStackTrace();
+        } catch (SignatureException e) {
             e.printStackTrace();
         }
         return null;
