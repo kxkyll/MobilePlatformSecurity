@@ -9,14 +9,19 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 
+import java.io.IOException;
 import java.math.BigInteger;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
+import java.security.cert.CertificateException;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Enumeration;
 
 import javax.security.auth.x500.X500Principal;
 
@@ -69,7 +74,6 @@ public class MyMessage extends Activity {
     }
 
     private KeyPair generateKeyPair (){
-        KeyPair keyPair = null;
         Calendar calendar = Calendar.getInstance();
         Date keyGenerationDate = calendar.getTime();
         calendar.add(Calendar.YEAR, 1);
@@ -84,7 +88,7 @@ public class MyMessage extends Activity {
                     .setSerialNumber(BigInteger.valueOf(1))
                     .setSubject(new X500Principal("CN=test1"))
                     .build());
-            keyPair = keyPairGenerator.generateKeyPair();
+            return keyPairGenerator.generateKeyPair();
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         } catch (NoSuchProviderException e) {
@@ -92,7 +96,24 @@ public class MyMessage extends Activity {
         } catch (InvalidAlgorithmParameterException e) {
             e.printStackTrace();
         }
-        return keyPair;
+        return null;
+    }
 
+    private Enumeration<String> listKeys() {
+
+        try {
+            KeyStore keystore = KeyStore.getInstance(KEY_STORE);
+            keystore.load(null);
+            return keystore.aliases();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (CertificateException e) {
+            e.printStackTrace();
+        } catch (KeyStoreException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }
