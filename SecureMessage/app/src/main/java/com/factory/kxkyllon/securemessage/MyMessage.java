@@ -44,8 +44,9 @@ public class MyMessage extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         keysGenerated = generateKeyPair();
-        String s = appkeys.toString();
-        Log.w(TAG, "MyMessage Activity, onCreate, appkey: "+s);
+        //String s = appkeys.toString();
+        //Log.w(TAG, "MyMessage Activity, onCreate, appkey: "+s);
+        Log.w(TAG, "MyMessage Activity, onCreate, keysGenerated: "+keysGenerated);
         setContentView(R.layout.activity_my_message);
     }
 
