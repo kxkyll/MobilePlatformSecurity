@@ -37,12 +37,13 @@ public class MyMessage extends Activity {
     private final static String KEY_STORE = "AndroidKeyStore";
     private static final String TAG = "SecureMessageApp";
     private KeyPair appkeys;
+    private Boolean keysGenerated = false;
     private String alias = "key";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        appkeys = generateKeyPair();
+        keysGenerated = generateKeyPair();
         String s = appkeys.toString();
         Log.w(TAG, "MyMessage Activity, onCreate, appkey: "+s);
         setContentView(R.layout.activity_my_message);
@@ -88,7 +89,27 @@ public class MyMessage extends Activity {
         startActivity(intent);
     }
 
-    private KeyPair generateKeyPair (){
+    /*
+     *  Called when Button Verify is pressed
+     */
+    public void verifyMessage (View view) {
+        String verified = "Not Verified";
+        Intent intent = new Intent (this, DisplayMessageActivity.class);
+        EditText editText = (EditText) findViewById(R.id.edit_message);
+        String message = editText.getText().toString();
+        Log.w(TAG, "---------------MyMessage Activity, verifyMessage, received message: "+message);
+        Log.w(TAG, "---------------MyMessage Activity, verifyMessage, message in bytes length: " + message.getBytes().length);
+        boolean b = verifySignature(message.getBytes());
+        Log.w(TAG, "---------------MyMessage Activity, sendMessage, verifyMessage: " + b);
+        if (b == true){
+            verified = "Verified";
+        }
+        intent.putExtra(EXTRA_MESSAGE, verified);
+        startActivity(intent);
+    }
+
+
+    private Boolean generateKeyPair (){
         Calendar calendar = Calendar.getInstance();
         Date keyGenerationDate = calendar.getTime();
         calendar.add(Calendar.YEAR, 1);
@@ -103,7 +124,8 @@ public class MyMessage extends Activity {
                     .setSerialNumber(BigInteger.valueOf(1))
                     .setSubject(new X500Principal("CN=test1"))
                     .build());
-            return keyPairGenerator.generateKeyPair();
+            keyPairGenerator.generateKeyPair();
+            return true;
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         } catch (NoSuchProviderException e) {
@@ -111,7 +133,7 @@ public class MyMessage extends Activity {
         } catch (InvalidAlgorithmParameterException e) {
             e.printStackTrace();
         }
-        return null;
+        return false;
     }
 
     private Enumeration<String> listKeys() {
@@ -138,7 +160,7 @@ public class MyMessage extends Activity {
             keystore.load(null);
             KeyStore.Entry entry = keystore.getEntry(alias, null);
             if (!(entry instanceof KeyStore.PrivateKeyEntry)) {
-                Log.w(TAG, "MyMessage Activity: Not PrivateKeyEntry");
+                Log.w(TAG, "MyMessage Activity, signData: Not PrivateKeyEntry");
                 return null;
             }
             Signature signature = Signature.getInstance("SHA256withRSA");
@@ -162,5 +184,38 @@ public class MyMessage extends Activity {
             e.printStackTrace();
         }
         return null;
+    }
+
+    private boolean verifySignature (byte[] messageToVerify) {
+        try {
+            KeyStore keystore = KeyStore.getInstance(KEY_STORE);
+            keystore.load(null);
+            KeyStore.Entry entry = keystore.getEntry(alias, null);
+            if (!(entry instanceof KeyStore.PrivateKeyEntry)) {
+                Log.w(TAG, "MyMessage Activity, verifySignature: Not PrivateKeyEntry");
+                return false;
+            }
+            Signature signature = Signature.getInstance("SHA256withRSA");
+            signature.initVerify(((KeyStore.PrivateKeyEntry) entry).getCertificate());
+            signature.update(messageToVerify);
+            return signature.verify(messageToVerify);
+
+
+        } catch (KeyStoreException e) {
+            e.printStackTrace();
+        } catch (CertificateException e) {
+            e.printStackTrace();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (UnrecoverableEntryException e) {
+            e.printStackTrace();
+        } catch (InvalidKeyException e) {
+            e.printStackTrace();
+        } catch (SignatureException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 }
