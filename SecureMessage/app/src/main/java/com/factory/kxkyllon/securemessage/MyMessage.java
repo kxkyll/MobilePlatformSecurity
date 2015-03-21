@@ -20,6 +20,7 @@ import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
+import java.security.PrivateKey;
 import java.security.Signature;
 import java.security.SignatureException;
 import java.security.UnrecoverableEntryException;
@@ -35,12 +36,15 @@ public class MyMessage extends Activity {
     public final static String EXTRA_MESSAGE = "com.factory.kxkyllon.securemessage.MESSAGE";
     private final static String KEY_STORE = "AndroidKeyStore";
     private static final String TAG = "SecureMessageApp";
-
+    private KeyPair appkeys;
     private String alias = "key";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        appkeys = generateKeyPair();
+        String s = appkeys.toString();
+        Log.w(TAG, "MyMessage Activity, onCreate, appkey: "+s);
         setContentView(R.layout.activity_my_message);
     }
 
@@ -74,9 +78,13 @@ public class MyMessage extends Activity {
         Intent intent = new Intent (this, DisplayMessageActivity.class);
         EditText editText = (EditText) findViewById(R.id.edit_message);
         String message = editText.getText().toString();
+        Log.w(TAG, "---------------MyMessage Activity, sendMessage, received message: "+message);
+        Log.w(TAG, "---------------MyMessage Activity, sendMessage, message in bytes length: "+message.getBytes().length);
         byte[] signedMessage = signData(message.getBytes());
+        Log.w(TAG, "---------------MyMessage Activity, sendMessage, signedMessage: "+signedMessage.toString());
+        Log.w(TAG, "---------------MyMessage Activity, sendMessage, signedMessage length: "+signedMessage.length);
         //intent.putExtra(EXTRA_MESSAGE, message);
-        intent.putExtra(EXTRA_MESSAGE, signedMessage);
+        intent.putExtra(EXTRA_MESSAGE, signedMessage.toString());
         startActivity(intent);
     }
 
@@ -134,6 +142,7 @@ public class MyMessage extends Activity {
                 return null;
             }
             Signature signature = Signature.getInstance("SHA256withRSA");
+            Log.w(TAG, "---------------MyMessage Activity, signData, signature: "+signature.toString());
             signature.initSign(((KeyStore.PrivateKeyEntry) entry).getPrivateKey());
             signature.update(messageInBytes);
             return signature.sign();
