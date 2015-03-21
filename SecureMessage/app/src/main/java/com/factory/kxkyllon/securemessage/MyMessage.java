@@ -74,9 +74,9 @@ public class MyMessage extends Activity {
     }
 
     /*
-     *  Called when Button Send is pressed
+     *  Called when Button Sign is pressed
      */
-    public void sendMessage (View view) {
+    public void signMessage (View view) {
         Intent intent = new Intent (this, DisplayMessageActivity.class);
         EditText editText = (EditText) findViewById(R.id.edit_message);
         String message = editText.getText().toString();

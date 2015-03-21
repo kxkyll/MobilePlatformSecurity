@@ -14,7 +14,12 @@
     <Button
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="@string/send_button"
-        android:onClick="sendMessage"/>
+        android:text="@string/sign_button"
+        android:onClick="signMessage"/>
+    <Button
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/verify_button"
+        android:onClick="verifyMessage"/>
 
 </LinearLayout>
