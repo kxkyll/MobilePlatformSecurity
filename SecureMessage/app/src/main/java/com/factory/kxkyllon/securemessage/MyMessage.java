@@ -1,7 +1,6 @@
 package com.factory.kxkyllon.securemessage;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
 import android.security.KeyPairGeneratorSpec;
 import android.util.Log;
@@ -15,13 +14,11 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
-import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
-import java.security.PrivateKey;
 import java.security.Signature;
 import java.security.SignatureException;
 import java.security.UnrecoverableEntryException;
@@ -40,6 +37,10 @@ public class MyMessage extends Activity {
     private Boolean keysGenerated = false;
     private String alias = "key";
     private TextView resultText;
+    private KeyStore keystore = null;
+    private KeyStore.Entry entry = null;
+    private Signature signature = null;
+    private byte[] messageSignedWith = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,9 +49,7 @@ public class MyMessage extends Activity {
             keysGenerated = generateKeyPair();
             Log.w(TAG, "MyMessage Activity, onCreate, keysGenerated: "+keysGenerated);
         }
-        //String s = appkeys.toString();
-        //Log.w(TAG, "MyMessage Activity, onCreate, appkey: "+s);
-        //Log.w(TAG, "MyMessage Activity, onCreate, keysGenerated: "+keysGenerated);
+
         setContentView(R.layout.activity_my_message);
         resultText = (TextView) findViewById(R.id.result_text);
     }
@@ -82,20 +81,15 @@ public class MyMessage extends Activity {
      *  Called when Button Sign is pressed
      */
     public void signMessage (View view) {
-        //Intent intent = new Intent (this, DisplayMessageActivity.class);
+
         EditText editText = (EditText) findViewById(R.id.edit_message);
         String message = editText.getText().toString();
         Log.w(TAG, "---------------MyMessage Activity, sendMessage, received message: "+message);
-        Log.w(TAG, "---------------MyMessage Activity, sendMessage, message in bytes length: "+message.getBytes().length);
-        byte[] signedMessage = signData(message.getBytes());
-        Log.w(TAG, "---------------MyMessage Activity, sendMessage, signedMessage: "+signedMessage.toString());
-        Log.w(TAG, "---------------MyMessage Activity, sendMessage, signedMessage length: "+signedMessage.length);
-        ////intent.putExtra(EXTRA_MESSAGE, message);
-        //intent.putExtra(EXTRA_MESSAGE, signedMessage.toString());
-        //startActivity(intent);
-        //id/result_text
+        messageSignedWith = signData(message.getBytes());
+        Log.w(TAG, "---------------MyMessage Activity, sendMessage, signedMessage: "+messageSignedWith.toString());
+        Log.w(TAG, "---------------MyMessage Activity, sendMessage, signedMessage length: "+messageSignedWith.length);
 
-        resultText.setText(signedMessage.toString());
+        resultText.setText("Message: " +message +" is signed with " +messageSignedWith.toString());
 
 
     }
@@ -104,20 +98,16 @@ public class MyMessage extends Activity {
      *  Called when Button Verify is pressed
      */
     public void verifyMessage (View view) {
-        String verified = "Not Verified";
-        //Intent intent = new Intent (this, DisplayMessageActivity.class);
-        EditText editText = (EditText) findViewById(R.id.edit_message);
+        String verified = "not verified";
+        EditText editText = (EditText) findViewById(R.id.verify_message);
         String message = editText.getText().toString();
         Log.w(TAG, "---------------MyMessage Activity, verifyMessage, received message: "+message);
-        Log.w(TAG, "---------------MyMessage Activity, verifyMessage, message in bytes length: " + message.getBytes().length);
         boolean b = verifySignature(message.getBytes());
         Log.w(TAG, "---------------MyMessage Activity, sendMessage, verifyMessage: " + b);
         if (b == true){
-            verified = "Verified";
+            verified = "verified!";
         }
-        //intent.putExtra(EXTRA_MESSAGE, verified);
-        //startActivity(intent);
-        resultText.setText(verified);
+        resultText.setText("Message: " +message +" is " +verified);
     }
 
 
@@ -137,12 +127,24 @@ public class MyMessage extends Activity {
                     .setSubject(new X500Principal("CN=test1"))
                     .build());
             keyPairGenerator.generateKeyPair();
+            keystore = KeyStore.getInstance(KEY_STORE);
+            keystore.load(null);
+            entry = keystore.getEntry(alias, null);
+            signature = Signature.getInstance("SHA256withRSA");
             return true;
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         } catch (NoSuchProviderException e) {
             e.printStackTrace();
         } catch (InvalidAlgorithmParameterException e) {
+            e.printStackTrace();
+        } catch (CertificateException e) {
+            e.printStackTrace();
+        } catch (UnrecoverableEntryException e) {
+            e.printStackTrace();
+        } catch (KeyStoreException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
             e.printStackTrace();
         }
         return false;
@@ -151,15 +153,9 @@ public class MyMessage extends Activity {
     private Enumeration<String> listKeys() {
 
         try {
-            KeyStore keystore = KeyStore.getInstance(KEY_STORE);
-            keystore.load(null);
-            return keystore.aliases();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (CertificateException e) {
-            e.printStackTrace();
+            if (keystore != null) {
+                return keystore.aliases();
+            }
         } catch (KeyStoreException e) {
             e.printStackTrace();
         }
@@ -168,28 +164,18 @@ public class MyMessage extends Activity {
 
     private byte[] signData(byte[] messageInBytes) {
         try {
-            KeyStore keystore = KeyStore.getInstance(KEY_STORE);
-            keystore.load(null);
-            KeyStore.Entry entry = keystore.getEntry(alias, null);
             if (!(entry instanceof KeyStore.PrivateKeyEntry)) {
                 Log.w(TAG, "MyMessage Activity, signData: Not PrivateKeyEntry");
                 return null;
             }
-            Signature signature = Signature.getInstance("SHA256withRSA");
-            Log.w(TAG, "---------------MyMessage Activity, signData, signature: "+signature.toString());
-            signature.initSign(((KeyStore.PrivateKeyEntry) entry).getPrivateKey());
-            signature.update(messageInBytes);
-            return signature.sign();
-        } catch (KeyStoreException e) {
-            e.printStackTrace();
-        } catch (CertificateException e) {
-            e.printStackTrace();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (UnrecoverableEntryException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+            // initializes the Signature instance using the private key
+            if (signature != null) {
+                signature.initSign(((KeyStore.PrivateKeyEntry) entry).getPrivateKey());
+                // updates the data to be signed
+                signature.update(messageInBytes);
+                return signature.sign();
+            }
+            return null;
         } catch (InvalidKeyException e) {
             e.printStackTrace();
         } catch (SignatureException e) {
@@ -199,36 +185,21 @@ public class MyMessage extends Activity {
     }
 
     private boolean verifySignature (byte[] messageToVerify) {
+        if (!(entry instanceof KeyStore.PrivateKeyEntry)) {
+            Log.w(TAG, "MyMessage Activity, verifySignature: Not PrivateKeyEntry");
+            return false;
+        }
         try {
-            KeyStore keystore = KeyStore.getInstance(KEY_STORE);
-            keystore.load(null);
-            KeyStore.Entry entry = keystore.getEntry(alias, null);
-            if (!(entry instanceof KeyStore.PrivateKeyEntry)) {
-                Log.w(TAG, "MyMessage Activity, verifySignature: Not PrivateKeyEntry");
-                return false;
-            }
-            Signature signature = Signature.getInstance("SHA256withRSA");
             signature.initVerify(((KeyStore.PrivateKeyEntry) entry).getCertificate());
             signature.update(messageToVerify);
-            // I do not get what should be the parameter to give to this signature verify command
-            return signature.verify(messageToVerify);
+            return signature.verify(messageSignedWith);
 
-
-        } catch (KeyStoreException e) {
-            e.printStackTrace();
-        } catch (CertificateException e) {
-            e.printStackTrace();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (UnrecoverableEntryException e) {
-            e.printStackTrace();
         } catch (InvalidKeyException e) {
             e.printStackTrace();
         } catch (SignatureException e) {
             e.printStackTrace();
         }
+
         return false;
     }
 }
