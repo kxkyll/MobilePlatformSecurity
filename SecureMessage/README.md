@@ -2,6 +2,16 @@ Software Systems Security 2015
 Kati Kyllönen 011539913
 Assignment 4 - Android Key Store
 
+The application work in one Activity called MyMessage 
+ - it has two editable textfields and two buttons and a text field for printing results of operations
+ - first text field is for entering a message and pressing the sign button - this signs the message
+ - second text field is for verifying if some message is signed 
+ - the results of the operations signed / verified or not verified are printed to the text field
+
+ Implementation has possibly unnecessarily lot of global variables... 
+ and it saves the signature and prints it out to the screen ;)
+
+
 "Benefits of a hardware-backed Android Key Store implementation. 
 What are the benefits for a 3rd party application developer? 
 How would your answer change if you consider the software-based implemention."
