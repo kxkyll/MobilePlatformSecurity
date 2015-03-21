@@ -9,6 +9,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import java.io.IOException;
 import java.math.BigInteger;
@@ -36,9 +37,9 @@ public class MyMessage extends Activity {
     public final static String EXTRA_MESSAGE = "com.factory.kxkyllon.securemessage.MESSAGE";
     private final static String KEY_STORE = "AndroidKeyStore";
     private static final String TAG = "SecureMessageApp";
-    private KeyPair appkeys;
     private Boolean keysGenerated = false;
     private String alias = "key";
+    private TextView resultText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,6 +52,7 @@ public class MyMessage extends Activity {
         //Log.w(TAG, "MyMessage Activity, onCreate, appkey: "+s);
         //Log.w(TAG, "MyMessage Activity, onCreate, keysGenerated: "+keysGenerated);
         setContentView(R.layout.activity_my_message);
+        resultText = (TextView) findViewById(R.id.result_text);
     }
 
 
@@ -80,7 +82,7 @@ public class MyMessage extends Activity {
      *  Called when Button Sign is pressed
      */
     public void signMessage (View view) {
-        Intent intent = new Intent (this, DisplayMessageActivity.class);
+        //Intent intent = new Intent (this, DisplayMessageActivity.class);
         EditText editText = (EditText) findViewById(R.id.edit_message);
         String message = editText.getText().toString();
         Log.w(TAG, "---------------MyMessage Activity, sendMessage, received message: "+message);
@@ -88,9 +90,14 @@ public class MyMessage extends Activity {
         byte[] signedMessage = signData(message.getBytes());
         Log.w(TAG, "---------------MyMessage Activity, sendMessage, signedMessage: "+signedMessage.toString());
         Log.w(TAG, "---------------MyMessage Activity, sendMessage, signedMessage length: "+signedMessage.length);
-        //intent.putExtra(EXTRA_MESSAGE, message);
-        intent.putExtra(EXTRA_MESSAGE, signedMessage.toString());
-        startActivity(intent);
+        ////intent.putExtra(EXTRA_MESSAGE, message);
+        //intent.putExtra(EXTRA_MESSAGE, signedMessage.toString());
+        //startActivity(intent);
+        //id/result_text
+
+        resultText.setText(signedMessage.toString());
+
+
     }
 
     /*
@@ -98,7 +105,7 @@ public class MyMessage extends Activity {
      */
     public void verifyMessage (View view) {
         String verified = "Not Verified";
-        Intent intent = new Intent (this, DisplayMessageActivity.class);
+        //Intent intent = new Intent (this, DisplayMessageActivity.class);
         EditText editText = (EditText) findViewById(R.id.edit_message);
         String message = editText.getText().toString();
         Log.w(TAG, "---------------MyMessage Activity, verifyMessage, received message: "+message);
@@ -108,8 +115,9 @@ public class MyMessage extends Activity {
         if (b == true){
             verified = "Verified";
         }
-        intent.putExtra(EXTRA_MESSAGE, verified);
-        startActivity(intent);
+        //intent.putExtra(EXTRA_MESSAGE, verified);
+        //startActivity(intent);
+        resultText.setText(verified);
     }
 
 
@@ -202,6 +210,7 @@ public class MyMessage extends Activity {
             Signature signature = Signature.getInstance("SHA256withRSA");
             signature.initVerify(((KeyStore.PrivateKeyEntry) entry).getCertificate());
             signature.update(messageToVerify);
+            // I do not get what should be the parameter to give to this signature verify command
             return signature.verify(messageToVerify);
 
 

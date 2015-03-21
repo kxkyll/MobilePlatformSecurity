@@ -6,7 +6,10 @@
     <string name="edit_message">Type here a message</string>
     <string name="sign_button">Sign</string>
     <string name="verify_button">Verify</string>
+    <string name="verify_message">Insert message to be verified</string>
     <string name="title_activity_display_message">Display Message</string>
     <string name="hello_world">Hello world!</string>
+    <string name="result_text_default">The result will be shown here</string>
+
 
 </resources>

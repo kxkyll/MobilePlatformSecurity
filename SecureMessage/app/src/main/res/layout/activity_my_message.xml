@@ -16,10 +16,25 @@
         android:layout_height="wrap_content"
         android:text="@string/sign_button"
         android:onClick="signMessage"/>
+
+    <EditText android:id="@+id/verify_message"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/verify_message"
+        android:padding="10dip"/>
+
     <Button
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:text="@string/verify_button"
         android:onClick="verifyMessage"/>
+
+
+    <TextView
+        android:id="@+id/result_text"
+        android:layout_weight="1"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/result_text_default" />
 
 </LinearLayout>

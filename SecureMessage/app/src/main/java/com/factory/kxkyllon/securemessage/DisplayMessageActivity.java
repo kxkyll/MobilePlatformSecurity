@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.EditText;
 import android.widget.TextView;
 
 
@@ -23,9 +24,13 @@ public class DisplayMessageActivity extends Activity {
         textView.setTextSize(20);
         textView.setPadding(15,15,15,15);
         textView.setText(message);
+        // Set the text view as the activity layout
+        setContentView(textView);
 
         // Set the text view as the activity layout
         setContentView(textView);
+
+
     }
 
 
